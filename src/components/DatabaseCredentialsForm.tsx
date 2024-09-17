@@ -16,7 +16,7 @@ import InfoIcon from '@mui/icons-material/Info';
 import { SelectChangeEvent } from '@mui/material/Select';
 import {
   EnvironmentConfig,
-  defaultConfig,
+  defaultConfig,  
   environmentFields,
   defaultValuesByType,
 } from './environmentConfigs';
