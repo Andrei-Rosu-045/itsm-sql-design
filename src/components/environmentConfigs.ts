@@ -1,6 +1,9 @@
 // configs/environmentConfigs.ts
 
+import { SignalWifi1BarLockRounded } from "@mui/icons-material";
+
 export interface EnvironmentConfig {
+  id: string; 
   name: string;
   type: string;
   connection: string;
@@ -14,6 +17,7 @@ export interface EnvironmentConfig {
 }
 
 export const defaultConfig: EnvironmentConfig = {
+  id: '', 
   name: 'Default Connection',
   type: '',
   connection: '',
@@ -25,6 +29,7 @@ export const defaultConfig: EnvironmentConfig = {
   password: '',
   comment: '',
 };
+
 
 export const environmentFields: { [key: string]: Array<keyof EnvironmentConfig> } = {
   oracle: ['connection', 'schema', 'username', 'password'],

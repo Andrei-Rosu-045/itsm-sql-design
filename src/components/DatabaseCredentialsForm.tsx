@@ -16,7 +16,7 @@ import InfoIcon from '@mui/icons-material/Info';
 import { SelectChangeEvent } from '@mui/material/Select';
 import {
   EnvironmentConfig,
-  defaultConfig,  
+  defaultConfig,
   environmentFields,
   defaultValuesByType,
 } from './environmentConfigs';
@@ -28,6 +28,7 @@ interface Props {
 
 const DatabaseCredentialsForm: React.FC<Props> = ({ credentials, onCredentialsChange }) => {
   const [isDirty, setIsDirty] = useState(false);
+  const [isSaving, setIsSaving] = useState(false); // New state to manage saving status
 
   // Handle input changes
   const handleInputChange =
@@ -58,6 +59,7 @@ const DatabaseCredentialsForm: React.FC<Props> = ({ credentials, onCredentialsCh
   const handleClone = () => {
     const clonedConfig = { ...credentials };
     clonedConfig.name += ' (Clone)';
+    setIsDirty(true);
     onCredentialsChange(clonedConfig);
   };
 
@@ -74,10 +76,44 @@ const DatabaseCredentialsForm: React.FC<Props> = ({ credentials, onCredentialsCh
   };
 
   // Save the current configuration
-  const handleSave = () => {
-    // Implement the logic to save the configuration
-    console.log('Saving configuration:', credentials);
-    setIsDirty(false);
+  const handleSave = async () => {
+    // Validate that the required fields are filled out
+    if (!credentials.id || !credentials.type || !credentials.name) {
+      alert('Please fill out all required fields.');
+      return;
+    }
+
+    setIsSaving(true); // Indicate that saving is in progress
+
+    // Construct the URL
+    const organisation = 'me'; // Replace 'me' with your actual organisation name if different
+    const connectionId = credentials.id;
+    const url = `http://localhost:1234/url/itsm/${organisation}/databaseConnection/${connectionId}`;
+
+    try {
+      const response = await fetch(url, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(credentials),
+      });
+
+      if (response.ok) {
+        console.log('Database connection saved successfully.');
+        alert('Database connection saved successfully.');
+        setIsDirty(false);
+      } else {
+        const errorData = await response.text();
+        console.error('Failed to save database connection:', errorData);
+        alert(`Failed to save database connection: ${errorData}`);
+      }
+    } catch (error) {
+      console.error('Error saving database connection:', error);
+      alert(`Error saving database connection: ${error}`);
+    } finally {
+      setIsSaving(false); // Reset saving status
+    }
   };
 
   // Determine which fields to display based on the selected type
@@ -111,6 +147,16 @@ const DatabaseCredentialsForm: React.FC<Props> = ({ credentials, onCredentialsCh
       <Typography variant="h6" gutterBottom>
         Database Connection
       </Typography>
+
+      {/* ID Field */}
+      <TextField
+        label="Connection ID"
+        value={credentials.id}
+        onChange={handleInputChange('id')}
+        fullWidth
+        sx={{ marginBottom: 2 }}
+        required
+      />
 
       {/* Type Field */}
       <FormControl fullWidth sx={{ marginBottom: 2 }}>
@@ -151,6 +197,7 @@ const DatabaseCredentialsForm: React.FC<Props> = ({ credentials, onCredentialsCh
         onChange={handleInputChange('name')}
         fullWidth
         sx={{ marginBottom: 2 }}
+        required
       />
 
       {/* Buttons */}
@@ -169,9 +216,9 @@ const DatabaseCredentialsForm: React.FC<Props> = ({ credentials, onCredentialsCh
           color="primary"
           onClick={handleSave}
           sx={{ flex: 1 }}
-          disabled={!isDirty}
+          disabled={!isDirty || isSaving}
         >
-          Save
+          {isSaving ? 'Saving...' : 'Save'}
         </Button>
       </Box>
     </Paper>
