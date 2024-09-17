@@ -88,7 +88,7 @@ const DatabaseCredentialsForm: React.FC<Props> = ({ credentials, onCredentialsCh
     // Construct the URL
     const organisation = 'me'; // Replace 'me' with your actual organisation name if different
     const connectionId = credentials.id;
-    const url = `http://localhost:1234/url/itsm/${organisation}/databaseConnection/${connectionId}`;
+    const url = `http://localhost:1235/url/itsm/${organisation}/databaseConnection/${connectionId}`;
 
     try {
       const response = await fetch(url, {
